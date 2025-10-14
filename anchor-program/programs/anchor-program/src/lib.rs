@@ -6,7 +6,7 @@ declare_id!("7i6pU54rKPsfuvdzmEVe9W8fpLA1vtZUbmZfbXamrrxn");
 pub mod anchor_program {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+    pub fn initialize(ctx: Context<CreateSession>) -> Result<()> {
         msg!("Greetings from: {:?}", ctx.program_id);
         Ok(())
     }
@@ -32,4 +32,40 @@ pub struct CreateSession<'info> {
     #[account(mut)]
     pub vault: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct CompleteSession<'info> {
+    #[account(mut, has_one= user)]
+    pub session: Account<'info, Session>,
+
+    #[account(mut)]
+    pub user: Signer<'info>,
+
+    #[account(mut)]
+    pub focus_pool: AccountInfo<'info>,
+
+    #[account(mut)]
+    pub vault: AccountInfo<'info>,
+}
+
+#[derive(Accounts)]
+pub struct ExpireSession<'info> {
+    #[account(mut)]
+    pub session: Account<'info, Session>,
+
+    #[account(mut)]
+    pub vault: AccountInfo<'info>,
+
+    #[account(mut)]
+    pub failure_pool: AccountInfo<'info>,
+}
+
+#[error_code]
+pub enum ErrorCode {
+    #[msg("Too early to complete the session")]
+    TooEarly,
+
+    #[msg("Session has not expired yet")]
+    NotExpired,
 }
