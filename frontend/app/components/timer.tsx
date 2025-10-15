@@ -105,7 +105,7 @@ export default function Timer(): React.ReactElement {
 
   return (
     <div style={{ display: "inline-flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ display: "inline-flex", alignItems: "center", gap: 16 }}>
+      <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
         {isEditing ? (
           <input
             autoFocus
@@ -135,8 +135,8 @@ export default function Timer(): React.ReactElement {
             style={{
               fontVariantNumeric: "tabular-nums",
               fontFamily: "inherit",
-              fontSize: 72,
-              width: 360,
+              fontSize: 120,
+              width: 600,
               textAlign: "center",
               padding: "6px 16px",
               border: "none",
@@ -155,23 +155,25 @@ export default function Timer(): React.ReactElement {
             title="Click to edit time"
             style={{
               fontVariantNumeric: "tabular-nums",
-              fontSize: 72,
+              fontSize: 120,
               padding: "6px 16px",
               borderRadius: 8,
               border: "none",
               background: "transparent",
               cursor: "text",
-              width: 360,
+              width: 600,
             }}
           >
             {display}
           </button>
         )}
+      </div>
+      {isEditing && inputError && (
+        <span style={{ color: "#e00", fontSize: 13, textAlign: "center" }}> {inputError}</span>
+      )}
+      <small style={{ color: "#666", fontSize: 14, textAlign: "center" }}>Click the time to edit (hh:mm:ss)</small>
 
-        {isEditing && inputError && (
-          <span style={{ color: "#e00", fontSize: 13 }}> {inputError}</span>
-        )}
-
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 4 }}>
         <button
           type="button"
           onClick={() => setIsRunning((r) => !r)}
@@ -194,16 +196,16 @@ export default function Timer(): React.ReactElement {
             setSecondsRemaining(0);
           }}
           style={{
-            padding: "8px 12px",
+            padding: "10px 16px",
             borderRadius: 8,
-            border: "1px solid #ddd",
-            background: "#f7f7ff",
+            border: "1px solid #ffffff",
+            background: "#000000",
+            color: "#ffffff",
           }}
         >
           Reset
         </button>
       </div>
-      <small style={{ color: "#666", fontSize: 14 }}>Click the time to edit (hh:mm:ss)</small>
     </div>
   );
 }
