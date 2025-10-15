@@ -5,14 +5,17 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
+[programs."http://127.0.0.1:8899"]
+list = "E2n3LaavcdNH8YfPUZLobAVjSGuhaHu8gNj46yUCeu8P"
+
 [programs.localnet]
-anchor_program = "7i6pU54rKPsfuvdzmEVe9W8fpLA1vtZUbmZfbXamrrxn"
+anchor_program = "CETiLPyUefJ5FT7TkARKM7W2NhGxDHmze8CiSqptNFFZ"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "http://127.0.0.1:8899"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
