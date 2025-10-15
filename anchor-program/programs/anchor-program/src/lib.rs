@@ -4,10 +4,93 @@ declare_id!("7i6pU54rKPsfuvdzmEVe9W8fpLA1vtZUbmZfbXamrrxn");
 
 #[program]
 pub mod anchor_program {
+
     use super::*;
 
-    pub fn initialize(ctx: Context<CreateSession>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
+    pub fn create_session(
+        ctx: Context<CreateSession>,
+        duration: i64,
+        stake_amount: u64,
+    ) -> Result<()> {
+        let session = &mut ctx.accounts.session;
+        session.user = *ctx.accounts.user.key;
+        session.stake_amount = stake_amount;
+        session.start_time = Clock::get()?.unix_timestamp;
+        session.duration = duration;
+        session.status = 0;
+
+        **ctx
+            .accounts
+            .user
+            .to_account_info()
+            .try_borrow_mut_lamports()? -= session.stake_amount;
+        **ctx
+            .accounts
+            .vault
+            .to_account_info()
+            .try_borrow_mut_lamports()? += session.stake_amount;
+
+        ctx.accounts.vault.bump = ctx.bumps.vault;
+
+        msg!("session created for {:?} ", ctx.accounts.user.key());
+        Ok(())
+    }
+
+    pub fn complete_session(ctx: Context<CompleteSession>) -> Result<()> {
+        let session = &mut ctx.accounts.session;
+        let now = Clock::get()?.unix_timestamp;
+
+        require!(
+            now >= session.start_time + session.duration,
+            ErrorCode::TooEarly
+        );
+
+        let user_share = session.stake_amount * 99 / 100;
+        let pool_share = session.stake_amount - user_share;
+
+        **ctx
+            .accounts
+            .vault
+            .to_account_info()
+            .try_borrow_mut_lamports()? -= session.stake_amount;
+        **ctx
+            .accounts
+            .user
+            .to_account_info()
+            .try_borrow_mut_lamports()? += user_share;
+        **ctx
+            .accounts
+            .focus_pool
+            .to_account_info()
+            .try_borrow_mut_lamports()? += pool_share;
+
+        session.status = 1;
+        msg!("Session completed for {:?}", ctx.accounts.user.key());
+        Ok(())
+    }
+
+    pub fn expire_session(ctx: Context<ExpireSession>) -> Result<()> {
+        let session = &mut ctx.accounts.session;
+        let now = Clock::get()?.unix_timestamp;
+
+        require!(
+            now > session.start_time + session.duration,
+            ErrorCode::NotExpired
+        );
+
+        **ctx
+            .accounts
+            .vault
+            .to_account_info()
+            .try_borrow_mut_lamports()? -= session.stake_amount;
+        **ctx
+            .accounts
+            .failure_pool
+            .to_account_info()
+            .try_borrow_mut_lamports()? += session.stake_amount;
+
+        session.status = 2;
+        msg!("Session expired for {:?}", session.user);
         Ok(())
     }
 }
@@ -21,32 +104,42 @@ pub struct Session {
     pub status: u8, // 0 = pending, 1 = completed , 2= failed
 }
 
+#[account]
+pub struct VaultAccount {
+    pub bump: u8,
+}
+
 #[derive(Accounts)]
 pub struct CreateSession<'info> {
-    #[account(init, payer=user, space = 8+32+8+8+8+1)]
+    #[account(init, payer=user, space=8+32+8+8+8+1)]
     pub session: Account<'info, Session>,
 
     #[account(mut)]
     pub user: Signer<'info>,
 
-    #[account(mut)]
-    pub vault: AccountInfo<'info>,
+    #[account(
+        init,
+        payer = user,
+        seeds = [b"vault", user.key().as_ref()],
+        bump,
+        space = 8 + 1
+    )]
+    pub vault: Account<'info, VaultAccount>,
     pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct CompleteSession<'info> {
-    #[account(mut, has_one= user)]
+    #[account(mut, has_one=user)]
     pub session: Account<'info, Session>,
 
     #[account(mut)]
     pub user: Signer<'info>,
 
+    #[account(seeds = [b"vault", user.key().as_ref()],bump=vault.bump)]
+    pub vault: Account<'info, VaultAccount>,
     #[account(mut)]
     pub focus_pool: AccountInfo<'info>,
-
-    #[account(mut)]
-    pub vault: AccountInfo<'info>,
 }
 
 #[derive(Accounts)]
@@ -54,8 +147,8 @@ pub struct ExpireSession<'info> {
     #[account(mut)]
     pub session: Account<'info, Session>,
 
-    #[account(mut)]
-    pub vault: AccountInfo<'info>,
+    #[account(seeds = [b"vault", session.user.key().as_ref()],bump= vault.bump)]
+    pub vault: Account<'info, VaultAccount>,
 
     #[account(mut)]
     pub failure_pool: AccountInfo<'info>,
