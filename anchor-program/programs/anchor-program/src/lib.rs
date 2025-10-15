@@ -120,7 +120,7 @@ pub struct CreateSession<'info> {
     #[account(
         init,
         payer = user,
-        seeds = [b"vault", user.key().as_ref()],
+        seeds = [b"vault", session.key().as_ref()],
         bump,
         space = 8 + 1
     )]
@@ -136,8 +136,10 @@ pub struct CompleteSession<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
-    #[account(seeds = [b"vault", user.key().as_ref()],bump=vault.bump)]
+    #[account(seeds = [b"vault", session.key().as_ref()],bump=vault.bump)]
     pub vault: Account<'info, VaultAccount>,
+
+    ///CHECK: This is the focus_pool account that receives 1% of completed session stakes
     #[account(mut)]
     pub focus_pool: AccountInfo<'info>,
 }
@@ -147,9 +149,10 @@ pub struct ExpireSession<'info> {
     #[account(mut)]
     pub session: Account<'info, Session>,
 
-    #[account(seeds = [b"vault", session.user.key().as_ref()],bump= vault.bump)]
+    #[account(seeds = [b"vault", session.key().as_ref()],bump= vault.bump)]
     pub vault: Account<'info, VaultAccount>,
 
+    ///CHECK: This is the failure_pool account that receives stakes from failed sessions
     #[account(mut)]
     pub failure_pool: AccountInfo<'info>,
 }
