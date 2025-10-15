@@ -45,11 +45,26 @@ export default function TodoList(): React.ReactElement {
 
       <ul style={{ display: "flex", flexDirection: "column", gap: 8, margin: 0, padding: 0, listStyle: "none" }}>
         {todos.map((t) => (
-          <li key={t.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <label style={{ display: "flex", alignItems: "center", gap: 8, color: "#ddd", flex: 1 }}>
-              <input type="checkbox" checked={t.done} onChange={() => toggleTodo(t.id)} />
-              <span style={{ textDecoration: t.done ? "line-through" : "none" }}>{t.title}</span>
-            </label>
+          <li key={t.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={t.done}
+              onClick={() => toggleTodo(t.id)}
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: 6,
+                border: "1px solid #888",
+                background: t.done ? "#111" : "transparent",
+                color: "#fff",
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
+              {t.done ? "✓" : ""}
+            </button>
+            <span style={{ color: "#ddd", textDecoration: t.done ? "line-through" : "none", flex: 1 }}>{t.title}</span>
             <button type="button" onClick={() => removeTodo(t.id)} style={{ padding: "4px 8px", borderRadius: 6, border: "1px solid #888", background: "transparent", color: "#ddd" }}>
               -
             </button>
