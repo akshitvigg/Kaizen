@@ -1,27 +1,29 @@
-"use client"
+"use client";
 
-import { FC, ReactNode, useMemo } from "react";
-import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import { clusterApiUrl } from "@solana/web3.js";
-import "@solana/wallet-adapter-react-ui/styles.css";
-import { WalletModalProvider, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import React from "react";
+import { useWallet } from "./wallet/WalletProvider";
 
+export default function SignInWithSol() {
+  const { connect, connecting, address } = useWallet();
 
-
-export default function Home() {
-  const endpoint = clusterApiUrl("devnet")
-  const wallet = useMemo(() => [], []);
   return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallet}>
-        <WalletModalProvider>
-          <WalletMultiButton>
-          </WalletMultiButton>
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-  )
+    <div className="p-6">
+      <h1 className="text-2xl mb-4">Sign in with Solana</h1>
+
+      {address ? (
+        <div>
+          <p>Connected: {address}</p>
+          <p className="text-sm text-gray-500">You can close this and use the Navbar</p>
+        </div>
+      ) : (
+        <button
+          onClick={() => connect()}
+          disabled={connecting}
+          className="px-4 py-2 rounded bg-[#14F195] hover:bg-[#12d182]"
+        >
+          {connecting ? "Connecting..." : "Connect Phantom"}
+        </button>
+      )}
+    </div>
+  );
 }

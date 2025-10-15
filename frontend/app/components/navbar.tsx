@@ -1,5 +1,5 @@
 "use client";
-
+import { NavbarWalletButton } from "./layout/NavbarWalletButton";
 import React from "react";
 
 export default function Navbar(): React.ReactElement {
@@ -34,18 +34,9 @@ export default function Navbar(): React.ReactElement {
         />
 
         {/* Profile circle */}
-        <button
-          type="button"
-          aria-label="Profile"
-          title="Profile"
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: 999,
-            border: "1px solid #888",
-            background: "transparent",
-          }}
-        />
+        <div className="hidden md:flex items-center gap-2">
+          <NavbarWalletButton />
+        </div>
       </div>
     </header>
   );
