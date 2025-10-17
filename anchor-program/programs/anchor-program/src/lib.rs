@@ -1,198 +1,253 @@
 use anchor_lang::prelude::*;
+use anchor_lang::system_program;
 
 declare_id!("CETiLPyUefJ5FT7TkARKM7W2NhGxDHmze8CiSqptNFFZ");
 
 #[program]
-pub mod anchor_program {
-
-    use anchor_lang::prelude::program::invoke_signed;
-
+pub mod deepwork {
     use super::*;
 
-    pub fn create_session(
-        ctx: Context<CreateSession>,
-        duration: i64,
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        let global_state = &mut ctx.accounts.global_state;
+        global_state.authority = ctx.accounts.authority.key();
+        global_state.focus_pool = 0;
+        global_state.failure_pool = 0;
+        global_state.total_sessions = 0;
+        global_state.vault_bump = ctx.bumps.vault;
+        Ok(())
+    }
+
+    pub fn start_focus_session(
+        ctx: Context<StartFocusSession>,
         stake_amount: u64,
+        duration_minutes: u64,
     ) -> Result<()> {
-        let session = &mut ctx.accounts.session;
-        session.user = *ctx.accounts.user.key;
-        session.stake_amount = stake_amount;
-        session.start_time = Clock::get()?.unix_timestamp;
-        session.duration = duration;
-        session.status = 0;
+        require!(stake_amount >= 10_000_000, ErrorCode::StakeTooLow); // min 0.01 SOL
+        require!(
+            duration_minutes > 0 && duration_minutes <= 480,
+            ErrorCode::InvalidDuration
+        ); // Max 8 hours
 
-        let session_key = session.key();
-        let vault_seeds = &[b"vault", session_key.as_ref(), &[ctx.accounts.vault.bump]];
+        let user_state = &mut ctx.accounts.user_state;
+        let global_state = &mut ctx.accounts.global_state;
 
-        invoke_signed(
-            &system_instruction::transfer(
-                &ctx.accounts.user.key(),
-                &ctx.accounts.vault.key(),
-                stake_amount,
-            ),
-            &[
-                ctx.accounts.user.to_account_info(),
-                ctx.accounts.vault.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-            ],
-            &[vault_seeds],
-        )?;
+        require!(!user_state.is_active, ErrorCode::SessionAlreadyActive);
 
-        ctx.accounts.vault.bump = ctx.bumps.vault;
+        // calc amounts
+        let focus_pool_amount = stake_amount / 100;
+        let vault_amount = stake_amount - focus_pool_amount;
 
-        msg!("session created for {:?} ", ctx.accounts.user.key());
+        // transfer stake amount from user to vault
+        let cpi_context = CpiContext::new(
+            ctx.accounts.system_program.to_account_info(),
+            system_program::Transfer {
+                from: ctx.accounts.user.to_account_info(),
+                to: ctx.accounts.vault.to_account_info(),
+            },
+        );
+        system_program::transfer(cpi_context, stake_amount)?;
+
+        global_state.focus_pool += focus_pool_amount;
+        global_state.total_sessions += 1;
+
+        // update user state
+        user_state.user = ctx.accounts.user.key();
+        user_state.is_active = true;
+        user_state.stake_amount = vault_amount;
+        user_state.start_time = Clock::get()?.unix_timestamp;
+        user_state.duration_minutes = duration_minutes;
+
         Ok(())
     }
 
-    pub fn complete_session(ctx: Context<CompleteSession>) -> Result<()> {
-        let session = &mut ctx.accounts.session;
-        let now = Clock::get()?.unix_timestamp;
+    pub fn complete_focus_session(ctx: Context<CompleteFocusSession>) -> Result<()> {
+        let user_state = &mut ctx.accounts.user_state;
+        let global_state = &ctx.accounts.global_state;
+
+        require!(user_state.is_active, ErrorCode::NoActiveSession);
+
+        let current_time = Clock::get()?.unix_timestamp;
+        let elapsed_minutes = (current_time - user_state.start_time) / 60;
 
         require!(
-            now >= session.start_time + session.duration,
-            ErrorCode::TooEarly
+            elapsed_minutes >= user_state.duration_minutes as i64,
+            ErrorCode::SessionNotComplete
         );
 
-        let user_share = session.stake_amount * 99 / 100;
-        let pool_share = session.stake_amount - user_share;
+        let return_amount = user_state.stake_amount;
 
-        let session_key = session.key();
-        let vault_seeds = &[b"vault", session_key.as_ref(), &[ctx.accounts.vault.bump]];
+        // transfer 99% back to user
+        let global_key = global_state.key();
+        let seeds = &[b"vault", global_key.as_ref(), &[global_state.vault_bump]];
+        let signer = &[&seeds[..]];
 
-        invoke_signed(
-            &system_instruction::transfer(
-                &ctx.accounts.vault.key(),
-                &ctx.accounts.user.key(),
-                user_share,
-            ),
-            &[
-                ctx.accounts.vault.to_account_info(),
-                ctx.accounts.user.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-            ],
-            &[vault_seeds],
-        )?;
+        let cpi_context = CpiContext::new_with_signer(
+            ctx.accounts.system_program.to_account_info(),
+            system_program::Transfer {
+                from: ctx.accounts.vault.to_account_info(),
+                to: ctx.accounts.user.to_account_info(),
+            },
+            signer,
+        );
+        system_program::transfer(cpi_context, return_amount)?;
 
-        invoke_signed(
-            &system_instruction::transfer(
-                &ctx.accounts.vault.key(),
-                &ctx.accounts.focus_pool.key(),
-                pool_share,
-            ),
-            &[
-                ctx.accounts.vault.to_account_info(),
-                ctx.accounts.focus_pool.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-            ],
-            &[vault_seeds],
-        )?;
+        user_state.is_active = false;
+        user_state.stake_amount = 0;
 
-        session.status = 1;
-        msg!("Session completed for {:?}", ctx.accounts.user.key());
         Ok(())
     }
 
-    pub fn expire_session(ctx: Context<ExpireSession>) -> Result<()> {
-        let session = &mut ctx.accounts.session;
-        let now = Clock::get()?.unix_timestamp;
+    pub fn fail_focus_session(ctx: Context<FailFocusSession>) -> Result<()> {
+        let user_state = &mut ctx.accounts.user_state;
+        let global_state = &mut ctx.accounts.global_state;
 
-        require!(
-            now > session.start_time + session.duration,
-            ErrorCode::NotExpired
-        );
+        require!(user_state.is_active, ErrorCode::NoActiveSession);
 
-        let session_key = session.key();
-        let vault_seeds = &[b"vault", session_key.as_ref(), &[ctx.accounts.vault.bump]];
+        // add 99% to failure pool (it stays in vault, just tracked)
+        global_state.failure_pool += user_state.stake_amount;
 
-        invoke_signed(
-            &system_instruction::transfer(
-                &ctx.accounts.vault.key(),
-                &ctx.accounts.failure_pool.key(),
-                session.stake_amount,
-            ),
-            &[
-                ctx.accounts.vault.to_account_info(),
-                ctx.accounts.failure_pool.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-            ],
-            &[vault_seeds],
-        )?;
+        // reset user state
+        user_state.is_active = false;
+        user_state.stake_amount = 0;
 
-        session.status = 2;
-        msg!("Session expired for {:?}", session.user);
         Ok(())
     }
-}
-
-#[account]
-pub struct Session {
-    pub user: Pubkey,
-    pub stake_amount: u64,
-    pub start_time: i64,
-    pub duration: i64,
-    pub status: u8, // 0 = pending, 1 = completed , 2= failed
-}
-
-#[account]
-pub struct VaultAccount {
-    pub bump: u8,
 }
 
 #[derive(Accounts)]
-pub struct CreateSession<'info> {
-    #[account(init, payer=user, space=8+32+8+8+8+1)]
-    pub session: Account<'info, Session>,
+pub struct Initialize<'info> {
+    #[account(
+        init,
+        payer = authority,
+        space = 8 + GlobalState::INIT_SPACE,
+        seeds = [b"global_state"],
+        bump
+    )]
+    pub global_state: Account<'info, GlobalState>,
+
+    /// CHECK: Vault PDA to hold staked SOL
+    #[account(
+        mut,
+        seeds = [b"vault", global_state.key().as_ref()],
+        bump
+    )]
+    pub vault: SystemAccount<'info>,
 
     #[account(mut)]
-    pub user: Signer<'info>,
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
 
+#[derive(Accounts)]
+pub struct StartFocusSession<'info> {
     #[account(
         init,
         payer = user,
-        seeds = [b"vault", session.key().as_ref()],
-        bump,
-        space = 8 + 1
+        space = 8 + UserState::INIT_SPACE,
+        seeds = [b"user_state", user.key().as_ref()],
+        bump
     )]
-    pub vault: Account<'info, VaultAccount>,
-    pub system_program: Program<'info, System>,
-}
+    pub user_state: Account<'info, UserState>,
 
-#[derive(Accounts)]
-pub struct CompleteSession<'info> {
-    #[account(mut, has_one=user)]
-    pub session: Account<'info, Session>,
+    #[account(
+        mut,
+        seeds = [b"global_state"],
+        bump
+    )]
+    pub global_state: Account<'info, GlobalState>,
+
+    /// CHECK: Vault PDA
+    #[account(
+        mut,
+        seeds = [b"vault", global_state.key().as_ref()],
+        bump = global_state.vault_bump
+    )]
+    pub vault: SystemAccount<'info>,
 
     #[account(mut)]
     pub user: Signer<'info>,
-
-    #[account(seeds = [b"vault", session.key().as_ref()],bump=vault.bump)]
-    pub vault: Account<'info, VaultAccount>,
-
-    ///CHECK: This is the focus_pool account that receives 1% of completed session stakes
-    #[account(mut)]
-    pub focus_pool: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-pub struct ExpireSession<'info> {
-    #[account(mut)]
-    pub session: Account<'info, Session>,
+pub struct CompleteFocusSession<'info> {
+    #[account(
+        mut,
+        seeds = [b"user_state", user.key().as_ref()],
+        bump,
+        has_one = user
+    )]
+    pub user_state: Account<'info, UserState>,
 
-    #[account(seeds = [b"vault", session.key().as_ref()],bump= vault.bump)]
-    pub vault: Account<'info, VaultAccount>,
+    #[account(
+        seeds = [b"global_state"],
+        bump
+    )]
+    pub global_state: Account<'info, GlobalState>,
 
-    ///CHECK: This is the failure_pool account that receives stakes from failed sessions
+    /// CHECK: Vault PDA
+    #[account(
+        mut,
+        seeds = [b"vault", global_state.key().as_ref()],
+        bump = global_state.vault_bump
+    )]
+    pub vault: SystemAccount<'info>,
+
     #[account(mut)]
-    pub failure_pool: AccountInfo<'info>,
+    pub user: Signer<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct FailFocusSession<'info> {
+    #[account(
+        mut,
+        seeds = [b"user_state", user.key().as_ref()],
+        bump,
+        has_one = user
+    )]
+    pub user_state: Account<'info, UserState>,
+
+    #[account(
+        mut,
+        seeds = [b"global_state"],
+        bump
+    )]
+    pub global_state: Account<'info, GlobalState>,
+
+    pub user: Signer<'info>,
+}
+
+#[account]
+#[derive(InitSpace)]
+pub struct GlobalState {
+    pub authority: Pubkey,
+    pub focus_pool: u64,
+    pub failure_pool: u64,
+    pub total_sessions: u64,
+    pub vault_bump: u8,
+}
+
+#[account]
+#[derive(InitSpace)]
+pub struct UserState {
+    pub user: Pubkey,
+    pub is_active: bool,
+    pub stake_amount: u64,
+    pub start_time: i64,
+    pub duration_minutes: u64,
 }
 
 #[error_code]
 pub enum ErrorCode {
-    #[msg("Too early to complete the session")]
-    TooEarly,
-
-    #[msg("Session has not expired yet")]
-    NotExpired,
+    #[msg("Stake amount too low. Minimum 0.01 SOL")]
+    StakeTooLow,
+    #[msg("Invalid duration. Must be between 1-480 minutes")]
+    InvalidDuration,
+    #[msg("User already has an active session")]
+    SessionAlreadyActive,
+    #[msg("No active session found")]
+    NoActiveSession,
+    #[msg("Session duration not yet complete")]
+    SessionNotComplete,
 }
