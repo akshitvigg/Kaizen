@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import Navbar from "./navbar";
-import Timer from "./timer";
-import TodoList from "./todo";
+import Navbar from "../components/navbar";
+import Timer from "../components/timer";
+import TodoList from "../components/todo";
 
 export default function Dashboard(): React.ReactElement {
   return (

@@ -1,11 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useWallet } from "./wallet/WalletProvider";
 
 export default function SignInWithSol() {
   const { connect, connecting, address } = useWallet();
+  const router = useRouter();
 
+  useEffect(() => {
+    if (address) {
+      router.replace("/dashboard");
+    }
+  }, [address, router]);
   return (
     <div className="p-6">
       <h1 className="text-2xl mb-4">Sign in with Solana</h1>
@@ -13,7 +20,7 @@ export default function SignInWithSol() {
       {address ? (
         <div>
           <p>Connected: {address}</p>
-          <p className="text-sm text-gray-500">You can close this and use the Navbar</p>
+          <p className="text-sm text-gray-500">Redirecting to Dashboard</p>
         </div>
       ) : (
         <button
