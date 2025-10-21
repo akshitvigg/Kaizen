@@ -15,7 +15,6 @@ export default function SignInWithSol() {
   }, [address, router]);
   return (
     <div className="p-6">
-      <h1 className="text-2xl mb-4">Sign in with Solana</h1>
 
       {address ? (
         <div>
@@ -26,9 +25,9 @@ export default function SignInWithSol() {
         <button
           onClick={() => connect()}
           disabled={connecting}
-          className="px-4 py-2 rounded bg-[#14F195] hover:bg-[#12d182]"
+          className="px-6 py-3 rounded border border-gray-500 bg-black"
         >
-          {connecting ? "Connecting..." : "Connect Phantom"}
+          {connecting ? "Connecting..." : "Connect Wallet"}
         </button>
       )}
     </div>

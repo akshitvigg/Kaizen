@@ -14,7 +14,6 @@ export default function Page() {
   return (
     <div>
       <Hero />
-      {address ? <Dashboard /> : <SignInWithSol />}
     </div>
   );
 }
