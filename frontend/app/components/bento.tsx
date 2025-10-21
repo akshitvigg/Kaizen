@@ -11,12 +11,8 @@ export default function BentoSection() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
             Powered by Solana
           </h2>
-          <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto">
-            Experience unmatched speed, security, and Web3 integration with Solana's cutting-edge blockchain technology
-          </p>
         </div>
 
-        {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
           {/* Large Feature - Spans 2 columns */}
           <div className="md:col-span-2 md:row-span-2 border border-white/20 rounded-xl p-8 md:p-12 bg-gradient-to-br from-white/5 to-transparent hover:border-white/40 transition-all duration-300 hover:shadow-lg">
@@ -31,14 +27,12 @@ export default function BentoSection() {
             </div>
           </div>
 
-          {/* Medium Feature - Single column */}
           <div className="md:col-span-1 border border-white/20 rounded-xl p-6 md:p-8 bg-gradient-to-br from-white/5 to-transparent hover:border-white/40 transition-all duration-300 hover:shadow-lg">
             <Coins className="w-8 h-8 mb-4 text-white" />
             <h3 className="text-xl md:text-2xl font-bold mb-2">Earn Rewards</h3>
             <p className="text-sm text-gray-400">Maximize productivity with token-based incentives</p>
           </div>
 
-          {/* Medium Feature - Single column */}
           <div className="md:col-span-1 border border-white/20 rounded-xl p-6 md:p-8 bg-gradient-to-br from-white/5 to-transparent hover:border-white/40 transition-all duration-300 hover:shadow-lg">
             <Shield className="w-8 h-8 mb-4 text-white" />
             <h3 className="text-xl md:text-2xl font-bold mb-2">Decentralized</h3>

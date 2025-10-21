@@ -14,7 +14,7 @@ export default function SignInWithSol() {
     }
   }, [address, router]);
   return (
-    <div className="p-6">
+    <div className="">
 
       {address ? (
         <div>
