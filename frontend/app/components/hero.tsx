@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import Bento from "../components/bento"
 import SignInWithSol from "./SigninWithSol"
 import Dashboard from "../dashboard/page"
 import { useWallet } from "./wallet/WalletProvider"
@@ -8,14 +9,11 @@ import { useWallet } from "./wallet/WalletProvider"
 export default function Hero() {
   const { address } = useWallet()
 
-  // If wallet is connected, render Dashboard only
   if (address) {
     return <Dashboard />
   }
-
-  // Otherwise, render Hero with SignInWithSol positioned as requested
   return (
-    <div className="w-full h-screen bg-black flex items-center justify-center overflow-hidden px-4">
+    <div className="bg-black flex items-center justify-center overflow-hidden px-4">
       <div className="flex flex-col items-center space-y-8">
         {/* Layered text effect */}
         <div
@@ -25,7 +23,7 @@ export default function Hero() {
           {Array.from({ length: 10 }).map((_, i) => (
             <span
               key={i}
-              className="select-none text-6xl font-bold whitespace-nowrap"
+              className="select-none text-8xl font-bold whitespace-nowrap"
               style={{
                 WebkitTextStroke: "1px white",
                 color: "black",
@@ -36,15 +34,17 @@ export default function Hero() {
             </span>
           ))}
           <span
-            className="text-6xl font-bold text-white whitespace-nowrap"
+            className="text-8xl font-bold text-white whitespace-nowrap"
             style={{ lineHeight: "1" }}
           >
             EARN BACK YOUR TIME
           </span>
         </div>
-        {/* SignInWithSol centered below the text */}
         <div className="flex justify-center">
           <SignInWithSol />
+        </div>
+        <div>
+          <Bento />
         </div>
       </div>
     </div>

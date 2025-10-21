@@ -2,8 +2,7 @@
 
 import React from "react";
 import Hero from "./components/hero";
-import Dashboard from "./dashboard/page";
-import SignInWithSol from "./components/SigninWithSol";
+import Bento from "./components/bento"
 import { useWallet } from "./components/wallet/WalletProvider";
 
 export default function Page() {
