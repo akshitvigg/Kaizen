@@ -1,5 +1,4 @@
 "use client"
-
 import React from "react"
 import Bento from "../components/bento"
 import SignInWithSol from "./SigninWithSol"
@@ -18,11 +17,10 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col items-center text-center space-y-8">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/5">
-            <span className="text-sm font-medium">✨ Powered by Solana</span>
-          </div>
 
-          <h1 className="text-7xl md:text-7xl lg:text-8xl font-bold text-balance leading-tight">
+          <h1 className="text-7xl md:text-7xl lg:text-8xl font-bold text-balance leading-tight"
+            style={{ fontFamily: "Pixeloid Sans, sans-serif" }}
+          >
             Reclaim Your Time,
             <br />
             <span className="bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">
@@ -30,7 +28,9 @@ export default function Hero() {
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-400 max-w-2xl text-balance">
+          <p className="text-lg md:text-xl text-gray-400 max-w-2xl text-balance "
+            style={{ fontFamily: "Pixeloid Sans, sans-serif" }}
+          >
             The productivity platform built on Solana. Track your tasks, and get rewarded for your
             achievements.
           </p>
