@@ -63,6 +63,13 @@ export default function Hero() {
               DEEP WORK
             </span>
           </div>
+          <div className="flex flex-col items-center" >
+            <p className="text-3xl font-bold text-white"> What is DEEPWORK?</p>
+            <p className="text-white">DeepWork is a habit-building and productivity app that treats your real life like a game.</p>
+            <p className="text-white">Stake Sol and earn or loose based on your performance. DeepWork is designed to motivate you to work harder</p>
+
+            <p className="pt-10 text-3xl text-white font-bold">Earn Rewards for Your Goals</p>
+          </div>
 
           <div className="mt-16">
             <Bento />
