@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
-declare_id!("CETiLPyUefJ5FT7TkARKM7W2NhGxDHmze8CiSqptNFFZ");
+declare_id!("5C6FGUgM3o2gULHhcRu1TnoHcKLVvezxZZThZTJiwqrM");
 
 #[program]
 pub mod deepwork {
@@ -560,4 +560,3 @@ pub enum ErrorCode {
     #[msg("Math error during calculation")]
     MathError,
 }
-

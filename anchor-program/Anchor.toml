@@ -6,10 +6,10 @@ resolution = true
 skip-lint = false
 
 [programs."http://127.0.0.1:8899"]
-list = "E2n3LaavcdNH8YfPUZLobAVjSGuhaHu8gNj46yUCeu8P"
+list = "5C6FGUgM3o2gULHhcRu1TnoHcKLVvezxZZThZTJiwqrM"
 
 [programs.localnet]
-anchor_program = "CETiLPyUefJ5FT7TkARKM7W2NhGxDHmze8CiSqptNFFZ"
+anchor_program = "5C6FGUgM3o2gULHhcRu1TnoHcKLVvezxZZThZTJiwqrM"
 
 [registry]
 url = "https://api.apr.dev"
