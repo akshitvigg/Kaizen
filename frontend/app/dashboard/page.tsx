@@ -1,21 +1,19 @@
 "use client";
 
 import React from "react";
-import Navbar from "./navbar";
-import Timer from "./timer";
-import TodoList from "./todo";
+import Navbar from "../components/navbar"
+import Timer from "../components/timer";
+import TodoList from "../components/todo";
 
 export default function Dashboard(): React.ReactElement {
   return (
-    <div style={{ minHeight: "100vh", height: "100vh", background: "#0d0d0d", color: "#eee" }}>
+    <div className="h-full"
+      style={{ minHeight: "100vh", height: "100vh", background: "#0d0d0d", color: "#eee" }}>
       <Navbar />
       <div style={{ position: "relative", height: "calc(100% - 61px)", width: "100%" }}>
-        {/* Absolutely centered timer */}
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
           <Timer />
         </div>
-
-        {/* Todos directly below the timer */}
         <div
           style={{
             position: "absolute",

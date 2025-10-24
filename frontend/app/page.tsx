@@ -1,9 +1,12 @@
-import Dashboard from "./components/dashborad";
-//import Signin from "./components/SigninWithSol"
+'use client';
+
+import React from "react";
+import Hero from "./components/hero";
+
 export default function Page() {
   return (
     <div>
-      <Dashboard />
+      <Hero />
     </div>
-  )
+  );
 }
