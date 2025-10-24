@@ -5,9 +5,8 @@ import Bento from "../components/bento"
 import SignInWithSol from "./SigninWithSol"
 import Features from "./Features"
 import Dashboard from "../dashboard/page"
-import { useWallet } from "./wallet/WalletProvider"
 import Footer from "./Footer"
-
+import { useWallet } from "./wallet/WalletProvider"
 export default function Hero() {
   const { address } = useWallet()
 
@@ -51,7 +50,7 @@ export default function Hero() {
               {Array.from({ length: 3 }).map((_, i) => (
                 <span
                   key={i}
-                  className="select-none text-6xl md:text-7xl lg:text-8xl font-bold whitespace-nowrap"
+                  className="select-none text-4xl md:text-7xl lg:text-6xl font-bold whitespace-nowrap"
                   style={{
                     WebkitTextStroke: "1px white",
                     color: "black",
@@ -62,7 +61,7 @@ export default function Hero() {
                 </span>
               ))}
               <span
-                className="text-6xl md:text-7xl lg:text-8xl font-bold text-white whitespace-nowrap"
+                className="text-4xl md:text-7xl lg:text-6xl font-bold text-white whitespace-nowrap"
                 style={{ lineHeight: "1" }}
               >
                 DEEP WORK
@@ -71,11 +70,11 @@ export default function Hero() {
             <Features />
             <div className="mt-16">
               <Bento />
-              <Footer />
             </div>
           </div>
         </div>
       </section>
+      <Footer />
     </div>
   )
 }
