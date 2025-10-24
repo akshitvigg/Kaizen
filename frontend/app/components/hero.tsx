@@ -46,7 +46,7 @@ export default function Hero() {
               className="flex flex-col leading-[0.8] space-y-[var(--gap)] mt-16"
               style={{ "--gap": "-0.7em" } as React.CSSProperties}
             >
-              {Array.from({ length: 4 }).map((_, i) => (
+              {Array.from({ length: 3 }).map((_, i) => (
                 <span
                   key={i}
                   className="select-none text-4xl md:text-7xl lg:text-7xl font-bold whitespace-nowrap hover:translate-x-2 transition-transform duration-300"
