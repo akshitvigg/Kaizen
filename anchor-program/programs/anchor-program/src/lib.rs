@@ -97,11 +97,11 @@ pub mod deepwork {
         stake_amount: u64,
         duration_minutes: u64,
     ) -> Result<()> {
-        require!(stake_amount >= 10_000_000, ErrorCode::StakeTooLow); 
+        require!(stake_amount >= 10_000_000, ErrorCode::StakeTooLow);
         require!(
             duration_minutes > 0 && duration_minutes <= 480,
             ErrorCode::InvalidDuration
-        ); 
+        );
 
         let user_state = &mut ctx.accounts.user_state;
         let global_state = &mut ctx.accounts.global_state;
@@ -560,3 +560,4 @@ pub enum ErrorCode {
     #[msg("Math error during calculation")]
     MathError,
 }
+
