@@ -25,7 +25,7 @@ export default function SignInWithSol() {
         <button
           onClick={() => connect()}
           disabled={connecting}
-          className="px-6 py-3 rounded border border-gray-500 bg-black"
+          className="px-6 py-3 rounded border border-gray-200 bg-black hover:bg-white hover:text-black hover:cursor-pointer"
         >
           {connecting ? "Connecting..." : "Connect Wallet"}
         </button>
