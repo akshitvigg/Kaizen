@@ -2,7 +2,7 @@ import React from "react"
 
 export default function features() {
   return (
-    <div className="flex flex-col items-center px-4 py-12 text-white">
+    <div id="features" className="flex flex-col items-center px-4 py-12 text-white">
       <h1 className="text-3xl md:text-4xl font-bold mb-3">Gamify Your Life</h1>
       <p className="max-w-2xl text-center text-base md:text-lg mb-8 leading-relaxed">
         DeepWork turns your real life into a game. Build habits, crush goals, and level up —

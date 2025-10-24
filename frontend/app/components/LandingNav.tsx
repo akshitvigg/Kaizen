@@ -25,7 +25,7 @@ export default function Navbar() {
         {/* Logo */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center">
-            <span className="text-black font-bold text-lg">D</span>
+            <span className="text-black font-bold text-lg">DK</span>
           </div>
           <span className="text-white font-bold text-lg hidden sm:inline">DeepWork</span>
         </div>
@@ -35,12 +35,8 @@ export default function Navbar() {
           <a href="#features" className="text-gray-300 hover:text-white transition-colors text-sm">
             Features
           </a>
-          <a href="#about" className="text-gray-300 hover:text-white transition-colors text-sm">
-            About
-          </a>
         </div>
 
-        {/* Auth Button - Desktop */}
         <div className="hidden md:flex items-center gap-4">
           {address ? (
             <div className="flex items-center gap-3">
@@ -58,28 +54,23 @@ export default function Navbar() {
             <button
               onClick={handleConnect}
               disabled={connecting}
-              className="px-6 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 text-sm"
+              className="px-6 py-2 border border-w text-white font-medium rounded-lg hover:bg-gray-100 hover:text-black transition-colors disabled:opacity-50 text-sm"
             >
               {connecting ? "Connecting..." : "Connect Wallet"}
             </button>
           )}
         </div>
 
-        {/* Mobile Menu Button */}
         <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-white p-2">
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden border-t border-white/10 bg-black/95 backdrop-blur-md">
           <div className="px-4 py-4 space-y-4">
-            <a href="#features" className="block text-gray-300 hover:text-white transition-colors">
+            <a href="#Features" className="block text-gray-300 hover:text-white transition-colors">
               Features
-            </a>
-            <a href="#about" className="block text-gray-300 hover:text-white transition-colors">
-              About
             </a>
             <div className="pt-4 border-t border-white/10">
               {address ? (
@@ -89,7 +80,7 @@ export default function Navbar() {
                   </p>
                   <button
                     onClick={handleDisconnect}
-                    className="w-full px-4 py-2 text-sm bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors border border-white/20"
+                    className="w-full px-4 py-2 text-sm text-white rounded-lg transition-colors border border-white/20"
                   >
                     Disconnect
                   </button>
@@ -98,7 +89,7 @@ export default function Navbar() {
                 <button
                   onClick={handleConnect}
                   disabled={connecting}
-                  className="w-full px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+                  className="w-full px-4 py-2 text-black font-medium rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
                 >
                   {connecting ? "Connecting..." : "Connect Wallet"}
                 </button>
