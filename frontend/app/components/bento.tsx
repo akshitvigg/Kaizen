@@ -4,7 +4,7 @@ import { Zap, Lock, Coins, BarChart3, Workflow, Shield } from "lucide-react"
 
 export default function BentoSection() {
   return (
-    <section className="w-full bg-black text-white px-4 py-24 md:py-32">
+    <section className="w-full text-white px-4 py-24 md:py-32">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="mb-16 md:mb-24 text-center">
