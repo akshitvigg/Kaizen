@@ -1,0 +1,1487 @@
+{
+    "address": "as6C6SkX7KmKZ3XjELQSpiTHSk7xXnt1AK8h1y2XwYJ",
+    "metadata": {
+      "name": "deepwork",
+      "version": "0.1.0",
+      "spec": "0.1.0",
+      "description": "Created with Anchor"
+    },
+    "instructions": [
+      {
+        "name": "claim_rewards",
+        "discriminator": [
+          4,
+          144,
+          132,
+          71,
+          116,
+          23,
+          151,
+          80
+        ],
+        "accounts": [
+          {
+            "name": "user_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    117,
+                    115,
+                    101,
+                    114,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "user"
+                }
+              ]
+            }
+          },
+          {
+            "name": "global_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "failure_pool_vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    102,
+                    97,
+                    105,
+                    108,
+                    117,
+                    114,
+                    101,
+                    95,
+                    112,
+                    111,
+                    111,
+                    108,
+                    95,
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true,
+            "relations": [
+              "user_state"
+            ]
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": []
+      },
+      {
+        "name": "complete_focus_session",
+        "discriminator": [
+          50,
+          241,
+          100,
+          248,
+          167,
+          32,
+          104,
+          229
+        ],
+        "accounts": [
+          {
+            "name": "user_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    117,
+                    115,
+                    101,
+                    114,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "user"
+                }
+              ]
+            }
+          },
+          {
+            "name": "global_state",
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true,
+            "relations": [
+              "user_state"
+            ]
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": []
+      },
+      {
+        "name": "complete_focus_session_v1",
+        "discriminator": [
+          77,
+          59,
+          116,
+          25,
+          133,
+          251,
+          47,
+          59
+        ],
+        "accounts": [
+          {
+            "name": "user_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    117,
+                    115,
+                    101,
+                    114,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "user"
+                }
+              ]
+            }
+          },
+          {
+            "name": "global_state",
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true,
+            "relations": [
+              "user_state"
+            ]
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": []
+      },
+      {
+        "name": "expire_focus_session",
+        "discriminator": [
+          32,
+          40,
+          224,
+          226,
+          13,
+          191,
+          238,
+          232
+        ],
+        "accounts": [
+          {
+            "name": "user_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    117,
+                    115,
+                    101,
+                    114,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "user"
+                }
+              ]
+            }
+          },
+          {
+            "name": "global_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "failure_pool_vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    102,
+                    97,
+                    105,
+                    108,
+                    117,
+                    114,
+                    101,
+                    95,
+                    112,
+                    111,
+                    111,
+                    108,
+                    95,
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "receiver",
+            "writable": true
+          },
+          {
+            "name": "user",
+            "docs": [
+              "not required to sign for permissionless expiry",
+              "only used as seed for user_state PDA"
+            ],
+            "relations": [
+              "user_state"
+            ]
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": []
+      },
+      {
+        "name": "fail_focus_session",
+        "discriminator": [
+          233,
+          160,
+          242,
+          77,
+          41,
+          111,
+          231,
+          86
+        ],
+        "accounts": [
+          {
+            "name": "user_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    117,
+                    115,
+                    101,
+                    114,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "user"
+                }
+              ]
+            }
+          },
+          {
+            "name": "global_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "failure_pool_vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    102,
+                    97,
+                    105,
+                    108,
+                    117,
+                    114,
+                    101,
+                    95,
+                    112,
+                    111,
+                    111,
+                    108,
+                    95,
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true,
+            "relations": [
+              "user_state"
+            ]
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": []
+      },
+      {
+        "name": "initialize",
+        "discriminator": [
+          175,
+          175,
+          109,
+          31,
+          13,
+          152,
+          155,
+          237
+        ],
+        "accounts": [
+          {
+            "name": "global_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "focus_pool_vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    102,
+                    111,
+                    99,
+                    117,
+                    115,
+                    95,
+                    112,
+                    111,
+                    111,
+                    108,
+                    95,
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "failure_pool_vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    102,
+                    97,
+                    105,
+                    108,
+                    117,
+                    114,
+                    101,
+                    95,
+                    112,
+                    111,
+                    111,
+                    108,
+                    95,
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "authority",
+            "writable": true,
+            "signer": true
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": []
+      },
+      {
+        "name": "start_focus_session",
+        "discriminator": [
+          154,
+          43,
+          41,
+          199,
+          53,
+          63,
+          185,
+          12
+        ],
+        "accounts": [
+          {
+            "name": "user_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    117,
+                    115,
+                    101,
+                    114,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "user"
+                }
+              ]
+            }
+          },
+          {
+            "name": "global_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "focus_pool_vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    102,
+                    111,
+                    99,
+                    117,
+                    115,
+                    95,
+                    112,
+                    111,
+                    111,
+                    108,
+                    95,
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": [
+          {
+            "name": "stake_amount",
+            "type": "u64"
+          },
+          {
+            "name": "duration_minutes",
+            "type": "u64"
+          },
+          {
+            "name": "tasks",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Task"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "start_focus_session_v1",
+        "discriminator": [
+          13,
+          8,
+          82,
+          179,
+          173,
+          100,
+          94,
+          143
+        ],
+        "accounts": [
+          {
+            "name": "user_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    117,
+                    115,
+                    101,
+                    114,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "user"
+                }
+              ]
+            }
+          },
+          {
+            "name": "global_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "focus_pool_vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    102,
+                    111,
+                    99,
+                    117,
+                    115,
+                    95,
+                    112,
+                    111,
+                    111,
+                    108,
+                    95,
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": [
+          {
+            "name": "stake_amount",
+            "type": "u64"
+          },
+          {
+            "name": "duration_minutes",
+            "type": "u64"
+          }
+        ]
+      },
+      {
+        "name": "update_task",
+        "discriminator": [
+          100,
+          51,
+          124,
+          168,
+          211,
+          208,
+          42,
+          228
+        ],
+        "accounts": [
+          {
+            "name": "user_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    117,
+                    115,
+                    101,
+                    114,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "user"
+                }
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true,
+            "relations": [
+              "user_state"
+            ]
+          }
+        ],
+        "args": [
+          {
+            "name": "task_index",
+            "type": "u8"
+          },
+          {
+            "name": "completed",
+            "type": "bool"
+          }
+        ]
+      },
+      {
+        "name": "withdraw_failure_pool",
+        "discriminator": [
+          53,
+          55,
+          16,
+          109,
+          26,
+          50,
+          155,
+          6
+        ],
+        "accounts": [
+          {
+            "name": "global_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "failure_pool_vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    102,
+                    97,
+                    105,
+                    108,
+                    117,
+                    114,
+                    101,
+                    95,
+                    112,
+                    111,
+                    111,
+                    108,
+                    95,
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "recipient",
+            "writable": true
+          },
+          {
+            "name": "authority",
+            "signer": true
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": [
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      },
+      {
+        "name": "withdraw_focus_pool",
+        "discriminator": [
+          9,
+          183,
+          121,
+          91,
+          181,
+          19,
+          60,
+          180
+        ],
+        "accounts": [
+          {
+            "name": "global_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108,
+                    95,
+                    115,
+                    116,
+                    97,
+                    116,
+                    101
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "focus_pool_vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    102,
+                    111,
+                    99,
+                    117,
+                    115,
+                    95,
+                    112,
+                    111,
+                    111,
+                    108,
+                    95,
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state"
+                }
+              ]
+            }
+          },
+          {
+            "name": "recipient",
+            "writable": true
+          },
+          {
+            "name": "authority",
+            "signer": true
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": [
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "name": "GlobalState",
+        "discriminator": [
+          163,
+          46,
+          74,
+          168,
+          216,
+          123,
+          133,
+          98
+        ]
+      },
+      {
+        "name": "UserState",
+        "discriminator": [
+          72,
+          177,
+          85,
+          249,
+          76,
+          167,
+          186,
+          126
+        ]
+      }
+    ],
+    "errors": [
+      {
+        "code": 6000,
+        "name": "StakeTooLow",
+        "msg": "Stake amount too low. Minimum 0.01 SOL"
+      },
+      {
+        "code": 6001,
+        "name": "InvalidDuration",
+        "msg": "Invalid duration. Must be between 1-480 minutes"
+      },
+      {
+        "code": 6002,
+        "name": "SessionAlreadyActive",
+        "msg": "User already has an active session"
+      },
+      {
+        "code": 6003,
+        "name": "NoActiveSession",
+        "msg": "No active session found"
+      },
+      {
+        "code": 6004,
+        "name": "SessionNotComplete",
+        "msg": "Session duration not yet complete"
+      },
+      {
+        "code": 6005,
+        "name": "MathError",
+        "msg": "Math error during calculation"
+      },
+      {
+        "code": 6006,
+        "name": "NoTasksProvided",
+        "msg": "No tasks provided"
+      },
+      {
+        "code": 6007,
+        "name": "TooManyTasks",
+        "msg": "Too many tasks. Maximum 20 tasks"
+      },
+      {
+        "code": 6008,
+        "name": "SessionStillActive",
+        "msg": "Session is still active"
+      },
+      {
+        "code": 6009,
+        "name": "InvalidTaskIndex",
+        "msg": "Invalid task index"
+      },
+      {
+        "code": 6010,
+        "name": "NoPendingBalance",
+        "msg": "No pending balance to claim"
+      }
+    ],
+    "types": [
+      {
+        "name": "GlobalState",
+        "type": {
+          "kind": "struct",
+          "fields": [
+            {
+              "name": "authority",
+              "type": "pubkey"
+            },
+            {
+              "name": "focus_pool",
+              "type": "u64"
+            },
+            {
+              "name": "failure_pool",
+              "type": "u64"
+            },
+            {
+              "name": "total_sessions",
+              "type": "u64"
+            },
+            {
+              "name": "vault_bump",
+              "type": "u8"
+            },
+            {
+              "name": "focus_pool_bump",
+              "type": "u8"
+            },
+            {
+              "name": "failure_pool_bump",
+              "type": "u8"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Task",
+        "type": {
+          "kind": "struct",
+          "fields": [
+            {
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "name": "completed",
+              "type": "bool"
+            }
+          ]
+        }
+      },
+      {
+        "name": "UserState",
+        "type": {
+          "kind": "struct",
+          "fields": [
+            {
+              "name": "user",
+              "type": "pubkey"
+            },
+            {
+              "name": "is_active",
+              "type": "bool"
+            },
+            {
+              "name": "stake_amount",
+              "type": "u64"
+            },
+            {
+              "name": "start_time",
+              "type": "i64"
+            },
+            {
+              "name": "duration_minutes",
+              "type": "u64"
+            },
+            {
+              "name": "pending_balance",
+              "type": "u64"
+            },
+            {
+              "name": "tasks",
+              "type": {
+                "vec": {
+                  "defined": {
+                    "name": "Task"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }

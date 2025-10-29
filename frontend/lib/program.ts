@@ -1,7 +1,11 @@
 import { AnchorProvider, Program, Wallet } from '@coral-xyz/anchor';
 import { Connection, PublicKey } from '@solana/web3.js';
 
-const IDL = require('../../anchor-program/target/idl/deepwork.json');
+// Import the IDL from within the frontend so it can be bundled by Vercel.
+// Place the generated deepwork.json at `frontend/lib/idl/deepwork.json`.
+// Type is `any` to avoid tight coupling with generated types.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+import IDL from '@/lib/idl/deepwork.json';
 
 export const PROGRAM_ID = new PublicKey('as6C6SkX7KmKZ3XjELQSpiTHSk7xXnt1AK8h1y2XwYJ');
 
