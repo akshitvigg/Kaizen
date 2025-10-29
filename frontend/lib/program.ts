@@ -1,24 +1,18 @@
 import { AnchorProvider, Program, Wallet } from '@coral-xyz/anchor';
 import { Connection, PublicKey } from '@solana/web3.js';
 
-// Import IDL as a regular JSON object
 const IDL = require('../../anchor-program/target/idl/deepwork.json');
 
-// Program ID from your Anchor program
 export const PROGRAM_ID = new PublicKey('as6C6SkX7KmKZ3XjELQSpiTHSk7xXnt1AK8h1y2XwYJ');
 
-// Connection to Solana network (using devnet for development)
 export const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
-// Program type
 export type DeepworkProgram = Program<any>;
 
-// Create program instance
 export function createProgram(provider: AnchorProvider): DeepworkProgram {
   return new Program(IDL, provider);
 }
 
-// Get provider from wallet
 export function getProvider(wallet: Wallet): AnchorProvider {
   return new AnchorProvider(connection, wallet, {
     preflightCommitment: 'confirmed',
@@ -26,7 +20,6 @@ export function getProvider(wallet: Wallet): AnchorProvider {
   });
 }
 
-// PDA seeds and derivation
 export const GLOBAL_STATE_SEED = 'global_state';
 export const USER_STATE_SEED = 'user_state';
 export const VAULT_SEED = 'vault';
@@ -61,6 +54,5 @@ export function solToLamports(sol: number): number {
   return Math.floor(sol * 1e9);
 }
 
-// Minimum stake amount (0.01 SOL = 10,000,000 lamports)
 export const MIN_STAKE_LAMPORTS = 10_000_000;
 export const MIN_STAKE_SOL = lamportsToSol(MIN_STAKE_LAMPORTS);

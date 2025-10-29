@@ -56,14 +56,14 @@ export default function Hero() {
                     lineHeight: "1",
                   }}
                 >
-                  DEEP WORK
+                  改善
                 </span>
               ))}
               <span
                 className="text-4xl md:text-7xl lg:text-7xl font-bold text-white whitespace-nowrap hover:translate-x-2 transition-transform duration-300"
                 style={{ lineHeight: "1" }}
               >
-                DEEP WORK
+                KAIZEN
               </span>
             </div>
             <Features />

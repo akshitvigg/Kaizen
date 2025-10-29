@@ -1,6 +1,8 @@
+
 "use client";
-import { NavbarWalletButton } from "./layout/NavbarWalletButton";
+
 import React, { useEffect, useState } from "react";
+import { NavbarWalletButton } from "./layout/NavbarWalletButton";
 import { useWallet } from "./wallet/WalletProvider";
 import { connection } from "../../lib/program";
 
@@ -18,11 +20,12 @@ export default function Navbar(): React.ReactElement {
 
       setLoading(true);
       try {
-        const publicKey = new (await import('@solana/web3.js')).PublicKey(address);
-        const balance = await connection.getBalance(publicKey);
-        setBalance(balance / 1e9); // Convert lamports to SOL
+        const { PublicKey } = await import("@solana/web3.js");
+        const publicKey = new PublicKey(address);
+        const bal = await connection.getBalance(publicKey);
+        setBalance(bal / 1e9);
       } catch (error) {
-        console.error('Error fetching balance:', error);
+        console.error("Error fetching balance:", error);
         setBalance(0);
       } finally {
         setLoading(false);
@@ -33,50 +36,54 @@ export default function Navbar(): React.ReactElement {
   }, [address]);
 
   return (
-    <header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "16px 20px",
-        borderBottom: "1px solid #333",
-      }}
-    >
-      <nav style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <a href="#" style={{ color: "#ccc", textDecoration: "none", fontSize: 18 }}>
-          leaderboards
-        </a>
-      </nav>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
 
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        {/* SOL Balance Display */}
-        <div
-          aria-label="SOL Balance"
-          title="SOL Balance"
-          style={{
-            minWidth: 80,
-            height: 28,
-            borderRadius: 999,
-            border: "1px solid #888",
-            background: "transparent",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "0 12px",
-          }}
-        >
-          <span style={{ color: "#ccc", fontSize: 14 }}>
-            {loading ? "..." : `${balance.toFixed(4)} SOL`}
-          </span>
-        </div>
+          {/* Logo + Brand */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center shadow-sm">
+              <span
+                className="text-black font-bold text-base leading-none"
+                style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+              >
+                改善
+              </span>
+            </div>
+            <span className="hidden sm:inline text-white font-bold text-lg tracking-tight">
+              Kaizen
+            </span>
+          </div>
 
-        {/* Profile circle */}
-        <div className="hidden md:flex items-center gap-2">
-          <NavbarWalletButton />
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center">
+            <a
+              href="#leaderboards"
+              className="text-gray-300 hover:text-white transition-colors text-sm font-medium px-3"
+            >
+              Leaderboards
+            </a>
+          </nav>
+
+          {/* Right Side */}
+          <div className="flex items-center gap-4">
+
+            <div
+              aria-label="SOL Balance"
+              title="SOL Balance"
+              className="hidden sm:flex min-w-20 h-8 border border-white/30 rounded-md bg-transparent px-3 items-center justify-center"
+            >
+              <span className="text-gray-300 text-xs font-medium">
+                {loading ? "..." : `${balance.toFixed(4)} SOL`}
+              </span>
+            </div>
+
+            {/* Wallet Button */}
+            <NavbarWalletButton />
+          </div>
         </div>
       </div>
     </header>
   );
 }
-
 
