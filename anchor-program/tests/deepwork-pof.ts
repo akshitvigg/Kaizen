@@ -73,7 +73,11 @@ describe("deepwork - PoF flows", () => {
     const preFocusLamports = await getLamports(focusPoolPda);
 
     await program.methods
-      .startFocusSession(new anchor.BN(100_000_000), new anchor.BN(25))
+      .startFocusSession(
+        new anchor.BN(100_000_000),
+        new anchor.BN(25),
+        [{ description: "Task 1", completed: false } as any]
+      )
       .accounts({
         userState: userStatePda,
         globalState: globalStatePda,
@@ -114,7 +118,11 @@ describe("deepwork - PoF flows", () => {
       .then((sig) => provider.connection.confirmTransaction(sig));
 
     await program.methods
-      .startFocusSession(new anchor.BN(100_000_000), new anchor.BN(1))
+      .startFocusSession(
+        new anchor.BN(100_000_000),
+        new anchor.BN(1),
+        [{ description: "Task 1", completed: false } as any]
+      ) // 1 minute; grace allows immediate completion
       .accounts({
         userState: userStatePda,
         globalState: globalStatePda,
@@ -129,7 +137,7 @@ describe("deepwork - PoF flows", () => {
     const preVaultLamports = await getLamports(vaultPda);
 
     await program.methods
-      .completeFocusSession()
+      .completeFocusSessionV1()
       .accounts({
         userState: userStatePda,
         globalState: globalStatePda,
@@ -147,7 +155,7 @@ describe("deepwork - PoF flows", () => {
       "vault should pay back 99%"
     );
 
-
+    // user_state closed on completion; fetching should fail
     try {
       await program.account.userState.fetch(userStatePda);
       assert.fail("user_state should be closed");
@@ -166,7 +174,11 @@ describe("deepwork - PoF flows", () => {
       .then((sig) => provider.connection.confirmTransaction(sig));
 
     await program.methods
-      .startFocusSession(new anchor.BN(100_000_000), new anchor.BN(25))
+      .startFocusSession(
+        new anchor.BN(100_000_000),
+        new anchor.BN(25),
+        [{ description: "Task 1", completed: false } as any]
+      )
       .accounts({
         userState: userStatePda,
         globalState: globalStatePda,

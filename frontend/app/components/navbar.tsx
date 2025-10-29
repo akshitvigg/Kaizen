@@ -1,8 +1,37 @@
 "use client";
 import { NavbarWalletButton } from "./layout/NavbarWalletButton";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useWallet } from "./wallet/WalletProvider";
+import { connection } from "../../lib/program";
 
 export default function Navbar(): React.ReactElement {
+  const { address } = useWallet();
+  const [balance, setBalance] = useState<number>(0);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (!address) {
+        setBalance(0);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const publicKey = new (await import('@solana/web3.js')).PublicKey(address);
+        const balance = await connection.getBalance(publicKey);
+        setBalance(balance / 1e9); // Convert lamports to SOL
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+        setBalance(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBalance();
+  }, [address]);
+
   return (
     <header
       style={{
@@ -20,18 +49,26 @@ export default function Navbar(): React.ReactElement {
       </nav>
 
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        {/* Empty SOL-at-stake pill */}
+        {/* SOL Balance Display */}
         <div
-          aria-label="SOL at stake"
-          title="SOL at stake"
+          aria-label="SOL Balance"
+          title="SOL Balance"
           style={{
-            minWidth: 64,
+            minWidth: 80,
             height: 28,
             borderRadius: 999,
             border: "1px solid #888",
             background: "transparent",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "0 12px",
           }}
-        />
+        >
+          <span style={{ color: "#ccc", fontSize: 14 }}>
+            {loading ? "..." : `${balance.toFixed(4)} SOL`}
+          </span>
+        </div>
 
         {/* Profile circle */}
         <div className="hidden md:flex items-center gap-2">

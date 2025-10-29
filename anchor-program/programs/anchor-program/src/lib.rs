@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
-declare_id!("5C6FGUgM3o2gULHhcRu1TnoHcKLVvezxZZThZTJiwqrM");
+declare_id!("as6C6SkX7KmKZ3XjELQSpiTHSk7xXnt1AK8h1y2XwYJ");
 
 #[program]
 pub mod deepwork {
@@ -96,12 +96,15 @@ pub mod deepwork {
         ctx: Context<StartFocusSession>,
         stake_amount: u64,
         duration_minutes: u64,
+        tasks: Vec<Task>,
     ) -> Result<()> {
         require!(stake_amount >= 10_000_000, ErrorCode::StakeTooLow);
         require!(
             duration_minutes > 0 && duration_minutes <= 480,
             ErrorCode::InvalidDuration
         );
+        require!(tasks.len() > 0, ErrorCode::NoTasksProvided);
+        require!(tasks.len() <= 20, ErrorCode::TooManyTasks);
 
         let user_state = &mut ctx.accounts.user_state;
         let global_state = &mut ctx.accounts.global_state;
@@ -143,8 +146,23 @@ pub mod deepwork {
         user_state.stake_amount = vault_amount;
         user_state.start_time = Clock::get()?.unix_timestamp;
         user_state.duration_minutes = duration_minutes;
+        user_state.pending_balance = 0;
+        user_state.tasks = tasks;
 
         Ok(())
+    }
+
+    // Backwards-compatible entrypoint for older clients/tests.
+    pub fn start_focus_session_v1(
+        ctx: Context<StartFocusSession>,
+        stake_amount: u64,
+        duration_minutes: u64,
+    ) -> Result<()> {
+        let default_task = Task {
+            description: "Focus Session".to_string(),
+            completed: false,
+        };
+        start_focus_session(ctx, stake_amount, duration_minutes, vec![default_task])
     }
 
     pub fn complete_focus_session(ctx: Context<CompleteFocusSession>) -> Result<()> {
@@ -164,9 +182,37 @@ pub mod deepwork {
             ErrorCode::SessionNotComplete
         );
 
-        let return_amount = user_state.stake_amount;
+        // Don't automatically return SOL - mark session as complete but keep stake locked
+        // Move the current session's stake into pending_balance so user can start another session
+        // without overwriting the previous session's claimable funds.
+        user_state.is_active = false;
+        user_state.pending_balance = user_state
+            .pending_balance
+            .checked_add(user_state.stake_amount)
+            .ok_or(ErrorCode::MathError)?;
+        user_state.stake_amount = 0;
 
-        // transfer 99% back to user (program-owned vault -> arbitrary account)
+        Ok(())
+    }
+
+    // Backwards-compatible completion that returns stake and closes user_state (legacy behavior)
+    pub fn complete_focus_session_v1(ctx: Context<CompleteFocusSessionClose>) -> Result<()> {
+        let user_state = &mut ctx.accounts.user_state;
+        let _global_state = &ctx.accounts.global_state;
+
+        require!(user_state.is_active, ErrorCode::NoActiveSession);
+
+        let current_time = Clock::get()?.unix_timestamp;
+        let elapsed_minutes = (current_time - user_state.start_time) / 60;
+
+        const GRACE_MINUTES: i64 = 5;
+        let required_minutes = (user_state.duration_minutes as i64).saturating_sub(GRACE_MINUTES);
+        require!(
+            elapsed_minutes >= required_minutes,
+            ErrorCode::SessionNotComplete
+        );
+
+        let return_amount = user_state.stake_amount;
         let from = ctx.accounts.vault.to_account_info();
         let to = ctx.accounts.user.to_account_info();
         **from.try_borrow_mut_lamports()? -= return_amount;
@@ -241,8 +287,13 @@ pub mod deepwork {
         let seeds = &[b"focus_pool_vault", gs_key.as_ref(), &[gs.focus_pool_bump]];
         let _signer = &[&seeds[..]];
 
-        // move from focus pool vault to recipient (direct lamport mutation)
+        // ensure we don't drop below rent-exempt balance
         let from = ctx.accounts.focus_pool_vault.to_account_info();
+        let rent_min = Rent::get()?.minimum_balance(0);
+        let lamports = **from.lamports.borrow();
+        let available = lamports.saturating_sub(rent_min);
+        require!(amount <= available, ErrorCode::MathError);
+        // move from focus pool vault to recipient (direct lamport mutation)
         let to = ctx.accounts.recipient.to_account_info();
         **from.try_borrow_mut_lamports()? -= amount;
         **to.try_borrow_mut_lamports()? += amount;
@@ -268,14 +319,81 @@ pub mod deepwork {
         ];
         let _signer = &[&seeds[..]];
 
-        // move from failure pool vault to recipient (direct lamport mutation)
+        // ensure we don't drop below rent-exempt balance
         let from = ctx.accounts.failure_pool_vault.to_account_info();
+        let rent_min = Rent::get()?.minimum_balance(0);
+        let lamports = **from.lamports.borrow();
+        let available = lamports.saturating_sub(rent_min);
+        require!(amount <= available, ErrorCode::MathError);
+        // move from failure pool vault to recipient (direct lamport mutation)
         let to = ctx.accounts.recipient.to_account_info();
         **from.try_borrow_mut_lamports()? -= amount;
         **to.try_borrow_mut_lamports()? += amount;
 
         let global_state = &mut ctx.accounts.global_state;
         global_state.failure_pool = global_state.failure_pool.saturating_sub(amount);
+
+        Ok(())
+    }
+
+    pub fn claim_rewards(ctx: Context<ClaimRewards>) -> Result<()> {
+        let user_state = &mut ctx.accounts.user_state;
+        let global_state = &mut ctx.accounts.global_state;
+
+        require!(!user_state.is_active, ErrorCode::SessionStillActive);
+
+        let total_tasks = user_state.tasks.len() as u64;
+        let completed_tasks = user_state.tasks.iter().filter(|t| t.completed).count() as u64;
+
+        require!(total_tasks > 0, ErrorCode::NoTasksProvided);
+        require!(user_state.pending_balance > 0, ErrorCode::NoPendingBalance);
+
+        // Calculate reward: SOL refunded based on completed tasks
+        // If all tasks completed, get full stake back
+        // If some tasks incomplete, lose a percentage
+        let refund_percentage = (completed_tasks * 100) / total_tasks;
+        let refund_amount = (user_state.pending_balance * refund_percentage) / 100;
+
+        // Penalty goes to failure pool
+        let penalty_amount = user_state.pending_balance.saturating_sub(refund_amount);
+
+        if refund_amount > 0 {
+            // Transfer refund to user
+            let from = ctx.accounts.vault.to_account_info();
+            let to = ctx.accounts.user.to_account_info();
+            **from.try_borrow_mut_lamports()? -= refund_amount;
+            **to.try_borrow_mut_lamports()? += refund_amount;
+        }
+
+        if penalty_amount > 0 {
+            // Transfer penalty to failure pool
+            let from = ctx.accounts.vault.to_account_info();
+            let to = ctx.accounts.failure_pool_vault.to_account_info();
+            **from.try_borrow_mut_lamports()? -= penalty_amount;
+            **to.try_borrow_mut_lamports()? += penalty_amount;
+            global_state.failure_pool = global_state
+                .failure_pool
+                .checked_add(penalty_amount)
+                .ok_or(ErrorCode::MathError)?;
+        }
+
+        // Reset claim-related state so user can continue using the same PDA
+        user_state.pending_balance = 0;
+        user_state.tasks.clear();
+
+        Ok(())
+    }
+
+    pub fn update_task(ctx: Context<UpdateTask>, task_index: u8, completed: bool) -> Result<()> {
+        let user_state = &mut ctx.accounts.user_state;
+
+        require!(!user_state.is_active, ErrorCode::SessionStillActive);
+        require!(
+            (task_index as usize) < user_state.tasks.len(),
+            ErrorCode::InvalidTaskIndex
+        );
+
+        user_state.tasks[task_index as usize].completed = completed;
 
         Ok(())
     }
@@ -362,6 +480,35 @@ pub struct StartFocusSession<'info> {
 
 #[derive(Accounts)]
 pub struct CompleteFocusSession<'info> {
+    #[account(
+        mut,
+        seeds = [b"user_state", user.key().as_ref()],
+        bump,
+        has_one = user
+    )]
+    pub user_state: Account<'info, UserState>,
+
+    #[account(
+        seeds = [b"global_state"],
+        bump
+    )]
+    pub global_state: Account<'info, GlobalState>,
+
+    /// CHECK: Vault PDA
+    #[account(
+        mut,
+        seeds = [b"vault", global_state.key().as_ref()],
+        bump = global_state.vault_bump
+    )]
+    pub vault: UncheckedAccount<'info>,
+
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct CompleteFocusSessionClose<'info> {
     #[account(
         mut,
         close = user,
@@ -523,6 +670,59 @@ pub struct WithdrawFailurePool<'info> {
     pub system_program: Program<'info, System>,
 }
 
+#[derive(Accounts)]
+pub struct ClaimRewards<'info> {
+    #[account(
+        mut,
+        close = user,
+        seeds = [b"user_state", user.key().as_ref()],
+        bump,
+        has_one = user
+    )]
+    pub user_state: Account<'info, UserState>,
+
+    #[account(
+        mut,
+        seeds = [b"global_state"],
+        bump
+    )]
+    pub global_state: Account<'info, GlobalState>,
+
+    /// CHECK: Vault PDA
+    #[account(
+        mut,
+        seeds = [b"vault", global_state.key().as_ref()],
+        bump = global_state.vault_bump
+    )]
+    pub vault: UncheckedAccount<'info>,
+
+    /// CHECK: Failure pool vault PDA
+    #[account(
+        mut,
+        seeds = [b"failure_pool_vault", global_state.key().as_ref()],
+        bump = global_state.failure_pool_bump
+    )]
+    pub failure_pool_vault: UncheckedAccount<'info>,
+
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct UpdateTask<'info> {
+    #[account(
+        mut,
+        seeds = [b"user_state", user.key().as_ref()],
+        bump,
+        has_one = user
+    )]
+    pub user_state: Account<'info, UserState>,
+
+    #[account(mut)]
+    pub user: Signer<'info>,
+}
+
 #[account]
 #[derive(InitSpace)]
 pub struct GlobalState {
@@ -535,6 +735,13 @@ pub struct GlobalState {
     pub failure_pool_bump: u8,
 }
 
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace)]
+pub struct Task {
+    #[max_len(100)]
+    pub description: String,
+    pub completed: bool,
+}
+
 #[account]
 #[derive(InitSpace)]
 pub struct UserState {
@@ -543,6 +750,9 @@ pub struct UserState {
     pub stake_amount: u64,
     pub start_time: i64,
     pub duration_minutes: u64,
+    pub pending_balance: u64, // Amount available to claim
+    #[max_len(20)]
+    pub tasks: Vec<Task>, // On-chain task list
 }
 
 #[error_code]
@@ -559,4 +769,15 @@ pub enum ErrorCode {
     SessionNotComplete,
     #[msg("Math error during calculation")]
     MathError,
+    #[msg("No tasks provided")]
+    NoTasksProvided,
+    #[msg("Too many tasks. Maximum 20 tasks")]
+    TooManyTasks,
+    #[msg("Session is still active")]
+    SessionStillActive,
+    #[msg("Invalid task index")]
+    InvalidTaskIndex,
+    #[msg("No pending balance to claim")]
+    NoPendingBalance,
 }
+

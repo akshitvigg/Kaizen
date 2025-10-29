@@ -11,12 +11,19 @@ list = "5C6FGUgM3o2gULHhcRu1TnoHcKLVvezxZZThZTJiwqrM"
 [programs.localnet]
 anchor_program = "5C6FGUgM3o2gULHhcRu1TnoHcKLVvezxZZThZTJiwqrM"
 
+[programs.devnet]
+anchor_program = "as6C6SkX7KmKZ3XjELQSpiTHSk7xXnt1AK8h1y2XwYJ"
+
 [registry]
 url = "https://api.apr.dev"
 
+
 [provider]
-cluster = "http://127.0.0.1:8899"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
+
 [scripts]
+initialize = "yarn ts-node scripts/initialize.ts"
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 \"tests/**/*.ts\""
+
