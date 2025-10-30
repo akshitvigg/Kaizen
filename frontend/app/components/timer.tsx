@@ -5,6 +5,10 @@ import { useFocusSession } from "../../hooks/useFocusSession";
 import { useWallet } from "./wallet/WalletProvider";
 import { lamportsToSol, MIN_STAKE_SOL } from "../../lib/program";
 
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 function formatHms(totalSeconds: number): string {
   const clamped = Math.max(0, Math.floor(totalSeconds));
   const hours = Math.floor(clamped / 3600)
@@ -145,19 +149,19 @@ export default function Timer({
 
   const handleStartSession = async () => {
     if (!address) {
-      alert("Please connect your wallet first");
+      toast.warning("Please connect your wallet first");
       return;
     }
 
     if (userState?.isActive) {
-      alert("You already have an active session");
+      toast.warning("You already have an active session");
       return;
     }
 
     const localTasks = tasks?.map((t) => ({ description: t.title, completed: false })) || [];
 
     if (localTasks.length === 0) {
-      alert("Please add at least one task before starting");
+      toast.warning("Please add at least one task before starting");
       return;
     }
 
@@ -178,7 +182,7 @@ export default function Timer({
 
     const success = await completeFocusSession();
     if (success) {
-      alert("Session completed! Mark your tasks as done and claim your rewards.");
+      toast.success("Session completed! Mark your tasks as done and claim your rewards.");
       setIsRunning(false);
       onSolAffectingAction && onSolAffectingAction();
       onStatsAffectingAction && onStatsAffectingAction();
@@ -190,7 +194,7 @@ export default function Timer({
 
     const success = await claimRewards();
     if (success) {
-      alert("Rewards claimed!");
+      toast.success("Rewards claimed!");
       onSolAffectingAction && onSolAffectingAction();
       onStatsAffectingAction && onStatsAffectingAction();
     }
@@ -206,7 +210,7 @@ export default function Timer({
 
     const success = await failFocusSession();
     if (success) {
-      alert("Session failed. Your stake has been moved to the failure pool.");
+      toast.warning("Session failed. Your stake has been moved to the failure pool.");
       setIsRunning(false);
       onSolAffectingAction && onSolAffectingAction();
       onStatsAffectingAction && onStatsAffectingAction();
