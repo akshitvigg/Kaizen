@@ -41,9 +41,13 @@ function parseTimeInput(input: string): number | null {
 export default function Timer({
   tasks,
   sessionCompleted,
+  onSolAffectingAction,
+  onStatsAffectingAction,
 }: {
   tasks: Array<{ id: string; title: string; done: boolean }>;
   sessionCompleted: boolean;
+  onSolAffectingAction?: () => void;
+  onStatsAffectingAction?: () => void;
 }): React.ReactElement {
   const { address } = useWallet();
   const {
@@ -65,6 +69,7 @@ export default function Timer({
   const [showStakeInput, setShowStakeInput] = useState<boolean>(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const completeGuardRef = useRef<boolean>(false);
+  const [lastSetDuration, setLastSetDuration] = useState<number>(1800); // for restoring after reward/claim/fail
 
   useEffect(() => {
     setEditValue(formatHms(secondsRemaining));
@@ -105,15 +110,16 @@ export default function Timer({
   // Sync with blockchain state
   useEffect(() => {
     if (userState?.isActive) {
+      // Only sync timer to blockchain state if there's an active session!
       const durationSeconds = userState.durationMinutes * 60;
       const elapsedSeconds = Math.floor(Date.now() / 1000 - userState.startTime);
       const remaining = Math.max(0, durationSeconds - elapsedSeconds);
       setSecondsRemaining(remaining);
-
       if (remaining > 0) {
         setIsRunning(true);
       }
     } else {
+      // Don't touch the timer if no session is active!
       setIsRunning(false);
     }
   }, [userState]);
@@ -128,6 +134,14 @@ export default function Timer({
       completeGuardRef.current = false;
     }
   }, [secondsRemaining, isRunning, userState]);
+
+  // After session stops, restore to last set or default time
+  useEffect(() => {
+    if (!userState?.isActive && !isRunning) {
+      setSecondsRemaining(lastSetDuration);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userState?.isActive, isRunning]);
 
   const handleStartSession = async () => {
     if (!address) {
@@ -154,6 +168,8 @@ export default function Timer({
     if (success) {
       setIsRunning(true);
       setShowStakeInput(false);
+      onSolAffectingAction && onSolAffectingAction();
+      onStatsAffectingAction && onStatsAffectingAction();
     }
   };
 
@@ -164,6 +180,8 @@ export default function Timer({
     if (success) {
       alert("Session completed! Mark your tasks as done and claim your rewards.");
       setIsRunning(false);
+      onSolAffectingAction && onSolAffectingAction();
+      onStatsAffectingAction && onStatsAffectingAction();
     }
   };
 
@@ -173,6 +191,8 @@ export default function Timer({
     const success = await claimRewards();
     if (success) {
       alert("Rewards claimed!");
+      onSolAffectingAction && onSolAffectingAction();
+      onStatsAffectingAction && onStatsAffectingAction();
     }
   };
 
@@ -188,6 +208,8 @@ export default function Timer({
     if (success) {
       alert("Session failed. Your stake has been moved to the failure pool.");
       setIsRunning(false);
+      onSolAffectingAction && onSolAffectingAction();
+      onStatsAffectingAction && onStatsAffectingAction();
     }
   };
 
@@ -200,6 +222,7 @@ export default function Timer({
       return;
     }
     setSecondsRemaining(parsed);
+    setLastSetDuration(parsed);
     setIsEditing(false);
     setInputError(null);
   };
@@ -216,6 +239,10 @@ export default function Timer({
 
   return (
     <div style={{ display: "inline-flex", flexDirection: "column", gap: 12 }}>
+
+      {/* Quick Duration Buttons */}
+      {/* REMOVE the PRESET_DURATIONS declaration and quick-select button block from the UI */}
+
       {/* Session Status */}
       {userState?.isActive && (
         <div

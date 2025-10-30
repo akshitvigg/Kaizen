@@ -9,10 +9,13 @@ import { useFocusSession } from "../../hooks/useFocusSession";
 import { lamportsToSol } from "../../lib/program";
 
 export default function Dashboard(): React.ReactElement {
-  const { globalState, userState } = useFocusSession();
+  const [dashboardStatsRefreshKey, setDashboardStatsRefreshKey] = useState(0);
+  const { globalState, userState } = useFocusSession(dashboardStatsRefreshKey);
   const [sessionCompleted, setSessionCompleted] = useState(false);
   const [tasks, setTasks] = useState<Array<{ id: string, title: string, done: boolean }>>([]);
+  const [navRefreshKey, setNavRefreshKey] = useState(0); // <---
 
+  const handleNavRefresh = useCallback(() => setNavRefreshKey((k) => k + 1), []);
   const handleTasksChange = useCallback((t: Array<{ id: string, title: string, done: boolean }>) => {
     setTasks(t);
   }, []);
@@ -29,11 +32,16 @@ export default function Dashboard(): React.ReactElement {
   return (
     <div className="min-h-screen"
       style={{ minHeight: "100vh", height: "100vh", background: "#0d0d0d", color: "#eee" }}>
-      <Navbar />
+      <Navbar refreshTrigger={navRefreshKey} />
       <InitializeButton />
       <div style={{ position: "relative", height: "calc(100% - 61px)", width: "100%" }}>
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
-          <Timer tasks={tasks} sessionCompleted={sessionCompleted} />
+          <Timer
+            tasks={tasks}
+            sessionCompleted={sessionCompleted}
+            onSolAffectingAction={handleNavRefresh}
+            onStatsAffectingAction={() => setDashboardStatsRefreshKey(k => k + 1)}
+          />
         </div>
         <div
           style={{

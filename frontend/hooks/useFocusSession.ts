@@ -40,7 +40,7 @@ export interface GlobalState {
   failurePoolBump: number;
 }
 
-export function useFocusSession() {
+export function useFocusSession(externalRefreshKey?: any) {
   // Prevent duplicate submissions
   const inFlightRef = useRef<{ start: boolean; complete: boolean; fail: boolean; claim: boolean }>({
     start: false,
@@ -469,7 +469,7 @@ export function useFocusSession() {
   // Auto-refresh when address changes
   useEffect(() => {
     refresh();
-  }, [refresh]);
+  }, [refresh, externalRefreshKey]);
 
   return {
     userState,
